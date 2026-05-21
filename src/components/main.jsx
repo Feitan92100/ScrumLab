@@ -314,6 +314,74 @@ const SCENARIOS = [
   },
 ];
 
+const COURSE_MODULES = [
+  {
+    id: "video-rituels",
+    title: "Les rituels Scrum expliqués en 3 minutes",
+    format: "🎥 Vidéo",
+    duration: "3 min",
+    level: "Débutant",
+    color: "bg-sky-50 text-sky-700 border-sky-200",
+  },
+  {
+    id: "podcast-sm",
+    title: "Posture Scrum Master : coacher sans imposer",
+    format: "🎧 Podcast",
+    duration: "8 min",
+    level: "Intermédiaire",
+    color: "bg-violet-50 text-violet-700 border-violet-200",
+  },
+  {
+    id: "article-backlog",
+    title: "Prioriser un backlog quand tout est urgent",
+    format: "📖 Article",
+    duration: "5 min",
+    level: "Produit",
+    color: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  {
+    id: "sim-client",
+    title: "Gérer un client mécontent sans casser le Sprint",
+    format: "🎮 Simulation",
+    duration: "12 min",
+    level: "Avancé",
+    color: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  {
+    id: "video-dod",
+    title: "Definition of Done : le garde-fou qualité",
+    format: "🎥 Vidéo",
+    duration: "6 min",
+    level: "Qualité",
+    color: "bg-cyan-50 text-cyan-700 border-cyan-200",
+  },
+  {
+    id: "article-retro",
+    title: "Rétrospective efficace : une action, pas dix promesses",
+    format: "📖 Article",
+    duration: "4 min",
+    level: "Facilitation",
+    color: "bg-rose-50 text-rose-700 border-rose-200",
+  },
+];
+
+const COMPETENCIES = [
+  { label: "Rôles Scrum", value: 78 },
+  { label: "Backlog", value: 62 },
+  { label: "Rituels", value: 71 },
+  { label: "Posture Agile", value: 58 },
+  { label: "Qualité", value: 66 },
+];
+
+const LEARNERS = [
+  { name: "Camille Martin", progress: 4, total: 5, score: 86, lastSeen: "Il y a 2 h", risk: false },
+  { name: "Nadia Benali", progress: 3, total: 5, score: 74, lastSeen: "Hier", risk: false },
+  { name: "Thomas Leroy", progress: 2, total: 5, score: 48, lastSeen: "Il y a 5 jours", risk: true },
+  { name: "Inès Moreau", progress: 5, total: 5, score: 91, lastSeen: "Aujourd'hui", risk: false },
+  { name: "Jules Bernard", progress: 1, total: 5, score: 39, lastSeen: "Il y a 8 jours", risk: true },
+  { name: "Sarah Petit", progress: 2, total: 5, score: 52, lastSeen: "Il y a 3 jours", risk: true },
+];
+
 /* =========================================================================
    HOOKS & HELPERS (fonctions pures, testables)
    ========================================================================= */
@@ -494,7 +562,20 @@ const ClientAvatar = ({ className = "" }) => (
   </svg>
 );
 
-const ConsoleFrame = ({ children }) => (
+const ConsoleFrame = ({ children, activeSection, onNavigate }) => {
+  const sectionMeta = {
+    trainer: { title: "Dashboard formateur", subtitle: "Suivi de cohorte" },
+    courses: { title: "Bibliothèque de cours", subtitle: "Vue apprenant" },
+    game: { title: "Module AgileQuest", subtitle: "Simulation ScrumLab" },
+  };
+  const meta = sectionMeta[activeSection] || sectionMeta.game;
+  const navItems = [
+    { id: "trainer", label: "Dashboard", icon: LayoutDashboard },
+    { id: "courses", label: "Mes Modules", icon: BookOpen },
+    { id: "history", label: "Historique", icon: History, disabled: true },
+  ];
+
+  return (
   <div className="min-h-screen saas-shell font-pixel-body text-slate-900">
     <div className="flex min-h-screen">
       <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-slate-200 bg-white/90 backdrop-blur px-5 py-6">
@@ -506,14 +587,21 @@ const ConsoleFrame = ({ children }) => (
           </div>
         </div>
         <nav className="space-y-2 text-sm">
-          {[
-            { label: "Dashboard", icon: LayoutDashboard, active: false },
-            { label: "Mes Modules", icon: BookOpen, active: true },
-            { label: "Historique", icon: History, active: false },
-          ].map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             return (
-              <button key={item.label} className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-left transition ${item.active ? "bg-slate-950 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"}`}>
+              <button
+                key={item.label}
+                onClick={() => !item.disabled && onNavigate(item.id)}
+                disabled={item.disabled}
+                className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-left transition ${
+                  activeSection === item.id
+                    ? "bg-slate-950 text-white shadow-sm"
+                    : item.disabled
+                      ? "text-slate-300 cursor-not-allowed"
+                      : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
                 <Icon className="w-4 h-4" />
                 <span>{item.label}</span>
               </button>
@@ -533,8 +621,8 @@ const ConsoleFrame = ({ children }) => (
               <Menu className="w-5 h-5" />
             </button>
             <div>
-              <div className="font-pixel text-[10px] md:text-xs text-slate-950">Module AgileQuest</div>
-              <div className="hidden sm:block text-sm text-slate-500">Simulation ScrumLab</div>
+              <div className="font-pixel text-[10px] md:text-xs text-slate-950">{meta.title}</div>
+              <div className="hidden sm:block text-sm text-slate-500">{meta.subtitle}</div>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
@@ -557,8 +645,8 @@ const ConsoleFrame = ({ children }) => (
           <div className="mx-auto max-w-6xl rounded-2xl bg-white saas-card overflow-hidden">
             <div className="border-b border-slate-200 bg-white px-4 py-3 md:px-6 flex items-center justify-between">
               <div>
-                <div className="font-pixel text-[10px] md:text-xs text-slate-950">ScrumLab Training</div>
-                <div className="text-sm text-slate-500">Atelier de decision agile</div>
+                <div className="font-pixel text-[10px] md:text-xs text-slate-950">{meta.title}</div>
+                <div className="text-sm text-slate-500">{meta.subtitle}</div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 bg-red-400 rounded-full" />
@@ -566,7 +654,7 @@ const ConsoleFrame = ({ children }) => (
                 <div className="w-2.5 h-2.5 bg-green-400 rounded-full" />
               </div>
             </div>
-            <div className="bg-slate-950 p-2 md:p-4">
+            <div className={`${activeSection === "game" ? "bg-slate-950" : "bg-slate-50"} p-2 md:p-4`}>
               <div className="animate-screen-on origin-center">{children}</div>
             </div>
           </div>
@@ -574,7 +662,8 @@ const ConsoleFrame = ({ children }) => (
       </main>
     </div>
   </div>
-);
+  );
+};
 
 const PixelButton = ({ children, onClick, disabled, color = "bg-emerald-400", className = "" }) => (
   <button
@@ -1098,7 +1187,227 @@ const FeedbackOverlay = ({ choice, onNext, isLast }) => {
    COMPOSANT RACINE — chef d'orchestre.
    ========================================================================= */
 
+const CourseLibrary = ({ onLaunchGame }) => {
+  const [selectedModule, setSelectedModule] = useState(null);
+
+  return (
+    <div className="bg-slate-50 p-4 md:p-6 min-h-[640px]">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6">
+        <div>
+          <h1 className="font-pixel text-sm md:text-lg text-slate-950 mb-2">
+            Bibliothèque ScrumLab
+          </h1>
+          <p className="text-slate-500 text-base">
+            Des formats courts pour ancrer les bons réflexes agiles.
+          </p>
+        </div>
+        <button
+          onClick={onLaunchGame}
+          className="rounded-lg bg-slate-950 text-white px-4 py-2 text-sm font-semibold hover:bg-slate-800"
+        >
+          Lancer la simulation AgileQuest
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {COURSE_MODULES.map((module) => (
+          <button
+            key={module.id}
+            onClick={() => setSelectedModule(module)}
+            className="text-left rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition"
+          >
+            <div className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold mb-4 ${module.color}`}>
+              {module.format}
+            </div>
+            <h2 className="font-pixel text-[10px] leading-relaxed text-slate-950 mb-4">
+              {module.title}
+            </h2>
+            <div className="flex items-center justify-between text-sm text-slate-500">
+              <span>{module.level}</span>
+              <span className="rounded-md bg-slate-100 px-2 py-1 font-semibold text-slate-700">
+                {module.duration}
+              </span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {selectedModule && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-200">
+            <div className="text-4xl mb-3">🚧</div>
+            <h2 className="font-pixel text-sm text-slate-950 mb-3">
+              Module en création
+            </h2>
+            <p className="text-slate-600 mb-5">
+              “{selectedModule.title}” est en cours de création. Tu peux déjà signaler ton intérêt pour être prévenu à sa sortie.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button className="flex-1 rounded-lg bg-slate-950 text-white px-4 py-2 text-sm font-semibold">
+                Prévenez-moi de sa sortie
+              </button>
+              <button
+                onClick={() => setSelectedModule(null)}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const RadarChart = () => {
+  const center = 110;
+  const maxRadius = 78;
+  const points = COMPETENCIES.map((item, index) => {
+    const angle = -Math.PI / 2 + (index * 2 * Math.PI) / COMPETENCIES.length;
+    const radius = (item.value / 100) * maxRadius;
+    return {
+      ...item,
+      x: center + Math.cos(angle) * radius,
+      y: center + Math.sin(angle) * radius,
+      labelX: center + Math.cos(angle) * 98,
+      labelY: center + Math.sin(angle) * 98,
+      axisX: center + Math.cos(angle) * maxRadius,
+      axisY: center + Math.sin(angle) * maxRadius,
+    };
+  });
+
+  return (
+    <svg viewBox="0 0 220 220" className="w-full max-w-sm mx-auto">
+      {[0.33, 0.66, 1].map((step) => (
+        <polygon
+          key={step}
+          points={COMPETENCIES.map((_, index) => {
+            const angle = -Math.PI / 2 + (index * 2 * Math.PI) / COMPETENCIES.length;
+            return `${center + Math.cos(angle) * maxRadius * step},${center + Math.sin(angle) * maxRadius * step}`;
+          }).join(" ")}
+          fill="none"
+          stroke="#cbd5e1"
+          strokeWidth="1"
+        />
+      ))}
+      {points.map((point) => (
+        <line key={point.label} x1={center} y1={center} x2={point.axisX} y2={point.axisY} stroke="#e2e8f0" />
+      ))}
+      <polygon points={points.map((p) => `${p.x},${p.y}`).join(" ")} fill="rgba(14,165,233,0.25)" stroke="#0284c7" strokeWidth="3" />
+      {points.map((point) => (
+        <g key={point.label}>
+          <circle cx={point.x} cy={point.y} r="4" fill="#0284c7" />
+          <text x={point.labelX} y={point.labelY} textAnchor="middle" dominantBaseline="middle" className="fill-slate-600 text-[9px] font-bold">
+            {point.label}
+          </text>
+        </g>
+      ))}
+    </svg>
+  );
+};
+
+const TrainerDashboard = () => {
+  const [filter, setFilter] = useState("");
+  const learners = LEARNERS.filter((learner) =>
+    learner.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  return (
+    <div className="bg-slate-50 p-4 md:p-6 min-h-[640px]">
+      <div className="mb-6">
+        <h1 className="font-pixel text-sm md:text-lg text-slate-950 mb-2">
+          Dashboard formateur
+        </h1>
+        <p className="text-slate-500 text-base">
+          Données mockées de suivi pour une cohorte Scrum de 24 apprenants.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+        <div className="rounded-xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div className="text-sm text-slate-500 mb-2">Complétion moyenne</div>
+          <div className="font-pixel text-2xl text-slate-950 mb-3">68%</div>
+          <div className="h-3 rounded-full bg-slate-100 overflow-hidden">
+            <div className="h-full w-[68%] rounded-full bg-emerald-500" />
+          </div>
+        </div>
+        <div className="rounded-xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div className="text-sm text-slate-500 mb-2">Score moyen de réussite</div>
+          <div className="font-pixel text-2xl text-slate-950">14/20</div>
+          <div className="mt-3 text-sm text-emerald-600 font-semibold">75% de moyenne</div>
+        </div>
+        <div className="rounded-xl bg-red-50 border border-red-200 p-4 shadow-sm">
+          <div className="text-sm text-red-600 mb-2">Apprenants en difficulté</div>
+          <div className="font-pixel text-2xl text-red-700">3</div>
+          <div className="mt-3 text-sm text-red-700 font-semibold">nécessitent votre attention</div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-5">
+        <div className="rounded-xl bg-white border border-slate-200 p-4 shadow-sm">
+          <h2 className="font-pixel text-[11px] text-slate-950 mb-4">Analyse des compétences</h2>
+          <RadarChart />
+        </div>
+
+        <div className="rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <h2 className="font-pixel text-[11px] text-slate-950">Suivi individuel</h2>
+            <input
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Filtrer un apprenant..."
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+            />
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 text-slate-500">
+                <tr>
+                  <th className="text-left font-semibold p-3">Apprenant</th>
+                  <th className="text-left font-semibold p-3">Progression</th>
+                  <th className="text-left font-semibold p-3">Score dernier module</th>
+                  <th className="text-left font-semibold p-3">Dernière connexion</th>
+                  <th className="text-left font-semibold p-3">Détail</th>
+                </tr>
+              </thead>
+              <tbody>
+                {learners.map((learner) => {
+                  const percent = Math.round((learner.progress / learner.total) * 100);
+                  return (
+                    <tr key={learner.name} className="border-t border-slate-100">
+                      <td className="p-3 font-semibold text-slate-900">{learner.name}</td>
+                      <td className="p-3 min-w-40">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-24 rounded-full bg-slate-100 overflow-hidden">
+                            <div className="h-full rounded-full bg-sky-500" style={{ width: `${percent}%` }} />
+                          </div>
+                          <span className="text-slate-500">{learner.progress}/{learner.total}</span>
+                        </div>
+                      </td>
+                      <td className={`p-3 font-semibold ${learner.risk ? "text-red-600" : "text-emerald-600"}`}>
+                        {learner.score}%
+                      </td>
+                      <td className="p-3 text-slate-500">{learner.lastSeen}</td>
+                      <td className="p-3">
+                        <button className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-500 bg-slate-50">
+                          Voir le détail
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function AgileQuest() {
+  const [activeSection, setActiveSection] = useState("courses");
   const [view, setView] = useState("creation");
   const [gender, setGender] = useState(null);
   const [role, setRole] = useState(null);
@@ -1111,6 +1420,10 @@ export default function AgileQuest() {
     setGender(g);
     setRole(r);
     setView("simulation");
+  };
+
+  const handleLaunchGame = () => {
+    setActiveSection("game");
   };
 
   const handleChoice = (choice) => {
@@ -1150,28 +1463,39 @@ export default function AgileQuest() {
     setFlashingGauges({});
   };
 
+  const handleReturnDashboard = () => {
+    handleRestart();
+    setActiveSection("trainer");
+  };
+
   return (
     <>
       <style>{PIXEL_STYLES}</style>
-      <ConsoleFrame>
-        {view === "creation" && <CharacterCreation onStart={handleStart} />}
-        {view === "simulation" && (
-          <Simulation
-            gender={gender}
-            role={role}
-            gauges={gauges}
-            scenarioIndex={scenarioIndex}
-            onChoice={handleChoice}
-            flashingGauges={flashingGauges}
-          />
-        )}
-        {view === "result" && (
-          <Result
-            gauges={gauges}
-            role={role}
-            gender={gender}
-            onRestart={handleRestart}
-          />
+      <ConsoleFrame activeSection={activeSection} onNavigate={setActiveSection}>
+        {activeSection === "trainer" && <TrainerDashboard />}
+        {activeSection === "courses" && <CourseLibrary onLaunchGame={handleLaunchGame} />}
+        {activeSection === "game" && (
+          <>
+            {view === "creation" && <CharacterCreation onStart={handleStart} />}
+            {view === "simulation" && (
+              <Simulation
+                gender={gender}
+                role={role}
+                gauges={gauges}
+                scenarioIndex={scenarioIndex}
+                onChoice={handleChoice}
+                flashingGauges={flashingGauges}
+              />
+            )}
+            {view === "result" && (
+              <Result
+                gauges={gauges}
+                role={role}
+                gender={gender}
+                onRestart={handleReturnDashboard}
+              />
+            )}
+          </>
         )}
         {pendingChoice && (
           <FeedbackOverlay
