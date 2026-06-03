@@ -608,10 +608,6 @@ const ConsoleFrame = ({ children, activeSection, onNavigate }) => {
             );
           })}
         </nav>
-        <div className="mt-auto rounded-xl border border-slate-200 bg-slate-50 p-4">
-          <div className="font-pixel text-[9px] text-slate-700 mb-2">SPRINT LAB</div>
-          <p className="text-sm text-slate-500 leading-snug">Module interactif Scrum pour managers et equipes produit.</p>
-        </div>
       </aside>
 
       <main className="flex-1 min-w-0">
@@ -1143,7 +1139,7 @@ const FeedbackOverlay = ({ choice, onNext, isLast }) => {
   const s = styles[choice.type];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 animate-screen-on">
+    <div className="fixed top-16 bottom-0 left-0 right-0 lg:left-64 z-50 bg-black/70 flex items-center justify-center p-4 animate-screen-on">
       <div className={`${s.color} pixel-frame max-w-md w-full p-5`}>
         <div className="text-center mb-3">
           <div className="text-5xl mb-2">{s.badge}</div>
@@ -1191,10 +1187,10 @@ const CourseLibrary = ({ onLaunchGame }) => {
   const [selectedModule, setSelectedModule] = useState(null);
 
   return (
-    <div className="bg-slate-50 p-4 md:p-6 min-h-[640px]">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6">
-        <div>
-          <h1 className="font-pixel text-sm md:text-lg text-slate-950 mb-2">
+    <div className="bg-slate-50 p-4 md:p-6 min-h-[640px] max-w-7xl mx-auto">
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
+        <div className="max-w-2xl">
+          <h1 className="font-pixel text-sm md:text-base xl:text-lg text-slate-950 mb-2 leading-relaxed">
             Bibliothèque ScrumLab
           </h1>
           <p className="text-slate-500 text-base">
@@ -1203,28 +1199,28 @@ const CourseLibrary = ({ onLaunchGame }) => {
         </div>
         <button
           onClick={onLaunchGame}
-          className="rounded-lg bg-slate-950 text-white px-4 py-2 text-sm font-semibold hover:bg-slate-800"
+          className="w-full sm:w-fit rounded-lg bg-slate-950 text-white px-4 py-3 text-sm font-semibold hover:bg-slate-800"
         >
           Lancer la simulation AgileQuest
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
         {COURSE_MODULES.map((module) => (
           <button
             key={module.id}
             onClick={() => setSelectedModule(module)}
-            className="text-left rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition"
+            className="group flex min-h-[185px] flex-col text-left rounded-xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition"
           >
-            <div className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold mb-4 ${module.color}`}>
+            <div className={`inline-flex w-fit rounded-full border px-2.5 py-1 text-xs font-semibold mb-4 ${module.color}`}>
               {module.format}
             </div>
-            <h2 className="font-pixel text-[10px] leading-relaxed text-slate-950 mb-4">
+            <h2 className="font-pixel text-[10px] xl:text-[11px] leading-[1.65] text-slate-950 mb-4">
               {module.title}
             </h2>
-            <div className="flex items-center justify-between text-sm text-slate-500">
+            <div className="mt-auto flex items-center justify-between gap-3 text-sm text-slate-500">
               <span>{module.level}</span>
-              <span className="rounded-md bg-slate-100 px-2 py-1 font-semibold text-slate-700">
+              <span className="shrink-0 rounded-md bg-slate-100 px-2 py-1 font-semibold text-slate-700">
                 {module.duration}
               </span>
             </div>
